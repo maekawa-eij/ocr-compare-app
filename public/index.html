@@ -7,11 +7,13 @@
     body { font-family: sans-serif; margin: 20px; }
     textarea { width: 100%; height: 150px; margin-bottom: 10px; }
     .diff { background: #f0f0f0; padding: 10px; }
+    #pasteArea { border: 2px dashed #ccc; padding: 20px; margin-bottom: 10px; }
   </style>
 </head>
 <body>
   <h1>OCR＋テキスト比較ツール</h1>
-  <input type="file" id="imageInput"><br><br>
+  <div id="pasteArea" contenteditable="true">ここに画像を貼り付けてください（Ctrl+V）</div>
+  <input type="file" id="imageInput" style="display:none;"><br><br>
   <button onclick="uploadImage()">OCR開始</button><br><br>
 
   <h3>OCR結果</h3>
@@ -26,10 +28,26 @@
   <div class="diff" id="diffResult"></div>
 
   <script>
-    async function uploadImage() {
-      const fileInput = document.getElementById('imageInput');
+    document.getElementById('pasteArea').addEventListener('paste', function(event) {
+      const items = event.clipboardData.items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            document.getElementById('pasteArea').appendChild(img);
+            uploadImage(file);
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    });
+
+    async function uploadImage(file) {
       const formData = new FormData();
-      formData.append('image', fileInput.files[0]);
+      formData.append('image', file);
 
       const res = await fetch('/upload', {
         method: 'POST',
