@@ -15,7 +15,6 @@
   <h1>OCR＋テキスト比較ツール</h1>
   <div id="pasteArea" contenteditable="true">ここに画像を貼り付けてください（Ctrl+V）</div>
   <input type="file" id="imageInput" style="display:none;"><br><br>
-  <button onclick="uploadImage()">OCR開始</button>
   <button onclick="clearAll()">クリア</button><br><br>
 
   <h3>OCR結果</h3>
@@ -31,6 +30,8 @@
 
   <script>
     document.getElementById('pasteArea').addEventListener('paste', function(event) {
+      event.preventDefault(); // ブラウザの自動貼り付けを防ぐ
+
       const items = event.clipboardData.items;
       for (let i = 0; i < items.length; i++) {
         if (items[i].type.indexOf('image') !== -1) {
@@ -63,13 +64,13 @@
       const ocr = document.getElementById('ocrText').value;
       const compare = document.getElementById('compareText').value;
 
-      const ocrLines = ocr.split('\\n');
-      const compareLines = compare.split('\\n');
+      const ocrLines = ocr.split('\n');
+      const compareLines = compare.split('\n');
       let result = '';
 
       ocrLines.forEach((line, i) => {
         if (line !== compareLines[i]) {
-          result += `行${i + 1}が異なります：\\nOCR: ${line}\\n比較: ${compareLines[i] || '(空行)'}\\n\\n`;
+          result += `行${i + 1}が異なります：\nOCR: ${line}\n比較: ${compareLines[i] || '(空行)'}\n\n`;
         }
       });
 
