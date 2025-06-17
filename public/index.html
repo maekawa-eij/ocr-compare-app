@@ -8,13 +8,15 @@
     textarea { width: 100%; height: 150px; margin-bottom: 10px; }
     .diff { background: #f0f0f0; padding: 10px; }
     #pasteArea { border: 2px dashed #ccc; padding: 20px; margin-bottom: 10px; }
+    img { max-width: 300px; height: auto; }
   </style>
 </head>
 <body>
   <h1>OCR＋テキスト比較ツール</h1>
   <div id="pasteArea" contenteditable="true">ここに画像を貼り付けてください（Ctrl+V）</div>
   <input type="file" id="imageInput" style="display:none;"><br><br>
-  <button onclick="uploadImage()">OCR開始</button><br><br>
+  <button onclick="uploadImage()">OCR開始</button>
+  <button onclick="clearAll()">クリア</button><br><br>
 
   <h3>OCR結果</h3>
   <textarea id="ocrText"></textarea>
@@ -61,17 +63,24 @@
       const ocr = document.getElementById('ocrText').value;
       const compare = document.getElementById('compareText').value;
 
-      const ocrLines = ocr.split('\n');
-      const compareLines = compare.split('\n');
+      const ocrLines = ocr.split('\\n');
+      const compareLines = compare.split('\\n');
       let result = '';
 
       ocrLines.forEach((line, i) => {
         if (line !== compareLines[i]) {
-          result += `行${i + 1}が異なります：\nOCR: ${line}\n比較: ${compareLines[i] || '(空行)'}\n\n`;
+          result += `行${i + 1}が異なります：\\nOCR: ${line}\\n比較: ${compareLines[i] || '(空行)'}\\n\\n`;
         }
       });
 
       document.getElementById('diffResult').innerText = result || '差分はありません。';
+    }
+
+    function clearAll() {
+      document.getElementById('pasteArea').innerHTML = 'ここに画像を貼り付けてください（Ctrl+V）';
+      document.getElementById('ocrText').value = '';
+      document.getElementById('compareText').value = '';
+      document.getElementById('diffResult').innerText = '';
     }
   </script>
 </body>
