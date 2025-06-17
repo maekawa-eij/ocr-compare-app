@@ -1,14 +1,16 @@
 {
-  "name": "ocr-compare-app",
+  "name": "ocr-comparison-tool",
   "version": "1.0.0",
-  "description": "OCR and text comparison tool",
+  "description": "A tool for OCR and text comparison",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.17.1",
-    "multer": "^1.4.2",
+    "formidable": "^1.2.2",
     "tesseract.js": "^2.1.1"
-  }
+  },
+  "author": "",
+  "license": "ISC"
 }
