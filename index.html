@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>OCR比較ツール</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    textarea { width: 100%; height: 150px; margin-bottom: 10px; }
+    .diff { background: #f0f0f0; padding: 10px; }
+  </style>
+</head>
+<body>
+  <h1>OCR＋テキスト比較ツール</h1>
+  <input type="file" id="imageInput"><br><br>
+  <button onclick="uploadImage()">OCR開始</button><br><br>
+
+  <h3>OCR結果</h3>
+  <textarea id="ocrText"></textarea>
+
+  <h3>比較対象テキスト</h3>
+  <textarea id="compareText"></textarea>
+
+  <button onclick="compareText()">比較する</button>
+
+  <h3>差分結果</h3>
+  <div class="diff" id="diffResult"></div>
+
+  <script>
+    async function uploadImage() {
+      const fileInput = document.getElementById('imageInput');
+      const formData = new FormData();
+      formData.append('image', fileInput.files[0]);
+
+      const res = await fetch('/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      document.getElementById('ocrText').value = data.text;
+    }
+
+    function compareText() {
+      const ocr = document.getElementById('ocrText').value;
+      const compare = document.getElementById('compareText').value;
+
+      const ocrLines = ocr.split('\n');
+      const compareLines = compare.split('\n');
+      let result = '';
+
+      ocrLines.forEach((line, i) => {
+        if (line !== compareLines[i]) {
+          result += `行${i + 1}が異なります：\nOCR: ${line}\n比較: ${compareLines[i] || '(空行)'}\n\n`;
+        }
+      });
+
+      document.getElementById('diffResult').innerText = result || '差分はありません。';
+    }
+  </script>
+</body>
+</html>
