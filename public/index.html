@@ -30,7 +30,7 @@
 
   <script>
     document.getElementById('pasteArea').addEventListener('paste', function(event) {
-      event.preventDefault(); // ブラウザの自動貼り付けを防ぐ
+      event.preventDefault();
 
       const items = event.clipboardData.items;
       for (let i = 0; i < items.length; i++) {
