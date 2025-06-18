@@ -1,5 +1,3 @@
-# Corrected version of index.js with proper JSX syntax
-index_js_content = """
 import { useState, useRef, useEffect } from 'react';
 
 export default function Home() {
@@ -70,7 +68,7 @@ export default function Home() {
 
   return (
     <>
-      <h1>OCR Comparison Tool</h1>
+ Comparison Tool</h1>
       <div
         ref={pasteAreaRef}
         style={{
@@ -92,11 +90,3 @@ export default function Home() {
     </>
   );
 }
-"""
-
-# Write the corrected content to index.js
-with open('index.js', 'w') as f:
-    f.write(index_js_content)
-
-print("Corrected index.js file has been generated.")
-
