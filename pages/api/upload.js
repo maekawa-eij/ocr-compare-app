@@ -16,6 +16,16 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Form parsing error' });
     }
 
+    console.log('Uploaded files:', files); // ← ファイル構造の確認用ログ
+
+    const fileKey = Object.keys(files)[0]; // 最初のファイルキーを取得
+    const uploadedFile = files[fileKey];
+
+    if (!uploadedFile || !uploadedFile.filepath) {
+      console.error('ファイルが正しくアップロードされていません。');
+      return res.status(500).json({ error: 'アップロードされたファイルが無効です。' });
+    }
+
     const apiKey = process.env.GOOGLE_API_KEY;
     if (!apiKey) {
       console.error('GOOGLE_API_KEY が設定されていません。');
@@ -23,8 +33,7 @@ export default async function handler(req, res) {
     }
 
     try {
-      const imagePath = files.image.filepath;
-      const imageBuffer = await fs.promises.readFile(imagePath);
+      const imageBuffer = await fs.promises.readFile(uploadedFile.filepath);
       const base64Image = imageBuffer.toString('base64');
 
       const response = await fetch(
@@ -52,10 +61,7 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Google Vision API エラー', details: result });
       }
 
-      const text =
-        result.responses[0]?.fullTextAnnotation?.text ||
-        'テキストが検出されませんでした';
-
+      const text = result.responses[0]?.fullTextAnnotation?.text || 'テキストが検出されませんでした';
       res.status(200).json({ text });
     } catch (error) {
       console.error('OCR API 通信エラー:', error);
