@@ -1,4 +1,3 @@
-import { IncomingForm } from 'formidable';
 import { createWriteStream } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -15,20 +14,13 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const chunks = [];
-  const boundary = req.headers['content-type']?.split('boundary=')[1];
-
-  if (!boundary) {
-    return res.status(400).json({ error: 'No boundary in content-type header' });
-  }
-
   const Busboy = (await import('busboy')).default;
   const busboy = Busboy({ headers: req.headers });
 
-  let filePath = '';
   let fileBuffer = Buffer.alloc(0);
+  let filePath = '';
 
-  busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+  busboy.on('file', (fieldname, file, filename) => {
     const tempFileName = `${randomUUID()}-${filename}`;
     filePath = join(tmpdir(), tempFileName);
 
@@ -40,7 +32,7 @@ export default async function handler(req, res) {
     });
 
     file.on('end', () => {
-      console.log(`File [${fieldname}] upload finished: ${filePath}`);
+      console.log(`ファイルアップロード完了: ${filePath}`);
     });
   });
 
