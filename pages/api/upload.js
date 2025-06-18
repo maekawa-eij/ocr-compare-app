@@ -8,7 +8,11 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  const form = formidable({ multiples: false });
+  const form = formidable({
+    multiples: false,
+    keepExtensions: true,
+    uploadDir: '/tmp', // Vercelの一時ディレクトリ
+  });
 
   form.parse(req, async (err, fields, files) => {
     if (err) {
@@ -18,11 +22,11 @@ export default async function handler(req, res) {
 
     console.log('Uploaded files:', files); // ← ファイル構造の確認用ログ
 
-    const fileKey = Object.keys(files)[0]; // 最初のファイルキーを取得
+    const fileKey = Object.keys(files)[0];
     const uploadedFile = files[fileKey];
 
     if (!uploadedFile || !uploadedFile.filepath) {
-      console.error('ファイルが正しくアップロードされていません。');
+      console.error('ファイルが正しくアップロードされていません。files:', files);
       return res.status(500).json({ error: 'アップロードされたファイルが無効です。' });
     }
 
