@@ -1,96 +1,94 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OCR Compare App</title>
-    <style>
-        body {
-            font-family: sans-serif;
-            margin: 20px;
-        }
-        #pasteArea {
-            width: 100%;
-            height: 200px;
-            border: 2px dashed #ccc;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        #pasteArea img {
-            max-width: 100%;
-            max-height: 100%;
-        }
-        textarea {
-            width: 100%;
-            height: 200px;
-            margin-bottom: 20px;
-        }
-        #startButton {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color border: none;
-            cursor: pointer;
-            opacity: 1;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OCR Comparison Tool</title>
+  <style>
+    #pasteArea {
+      border: 2px dashed #ccc;
+      padding: 20px;
+      width: 300px;
+      height: 300px;
+      margin-bottom: 20px;
+    }
+    #ocrText {
+      width: 100%;
+      height: 100px;
+    }
+  </style>
 </head>
 <body>
-    <h1>OCR Compare App</h1>
-    <div id="pasteArea">ここに画像を貼り付けてください（Ctrl+V）</div>
-    <button id="startButton">読み取り開始</button>
-    <textarea id="ocrText" placeholder="OCR結果がここに表示されます"></textarea>
+  <h1>OCR Comparison Tool</h1>
+  <div id="pasteArea">ここに画像を貼り付けてください</div>
+  <button onclick="startOCR()">OCR開始</button>
+  <textarea id="ocrText" placeholder="OCR結果がここに表示されます"></textarea>
 
-    <script>
-        let lastPastedImageFile = null;
+  <script>
+    document.getElementById('pasteArea').addEventListener('paste', handlePaste);
 
-        document.getElementById('pasteArea').addEventListener('paste', function(event) {
-            event.preventDefault();
-            const items = event.clipboardData.items;
-            console.log('Pasted items:', items);
-
-            for (let i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf('image') !== -1) {
-                    const file = items[i].getAsFile();
-                    lastPastedImageFile = file;
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        const img = new Image();
-                        img.src = event.target.result;
-                        document.getElementById('pasteArea').appendChild(img);
-                        console.log('Image pasted');
-                    };
-                    reader.readAsDataURL(file);
-                }
-            }
-        });
-
-        document.getElementById('startButton').addEventListener('click', function() {
-            if (lastPastedImageFile) {
-                console.log('Start OCR process');
-                uploadImage(lastPastedImageFile);
-            } else {
-                alert('画像が貼り付けられていません');
-            }
-        });
-
-        async function uploadImage(file) {
-            const formData = new FormData();
-            formData.append('image', file);
-            console.log('Sending image to /api/upload');
-
-            const res = await fetch('/api/upload', {
-                method: 'POST',
-                body: formData
-            });
-
-            const data = await res.json();
-            console.log('OCR result:', data);
-            document.getElementById('ocrText').value = data.text;
+    function handlePaste(event) {
+      const items = event.clipboardData.items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const blob = items[i].getAsFile();
+          const img = document.createElement('img');
+          img.src = URL.createObjectURL(blob);
+          img.style.maxWidth = '100%';
+          document.getElementById('pasteArea').innerHTML = '';
+          document.getElementById('pasteArea').appendChild(img);
+          uploadImage(blob);
         }
-    </script>
+      }
+    }
+
+    async function uploadImage(file) {
+      const formData = new FormData();
+      formData.append('image', file);
+      console.log('Sending image to /api/upload');
+
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`サーバーエラー: ${res.status} - ${text}`);
+        }
+
+        const data = await res.json();
+        console.log('OCR result:', data);
+        document.getElementById('ocrText').value = data.text;
+      } catch (error) {
+        console.error('OCRエラー:', error);
+        alert('OCR処理中にエラーが発生しました。コンソールを確認してください。');
+      }
+    }
+
+    function startOCR() {
+      const pasteArea = document.getElementById('pasteArea');
+      const img = pasteArea.querySelector('img');
+      if (img) {
+        const file = dataURLtoBlob(img.src);
+        uploadImage(file);
+      } else {
+        alert('画像が貼り付けられていません');
+      }
+    }
+
+    function dataURLtoBlob(dataURL) {
+      const parts = dataURL.split(',');
+      const byteString = atob(parts[1]);
+      const mimeString = parts[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      return new Blob([ab], { type: mimeString });
+    }
+  </script>
 </body>
 </html>
