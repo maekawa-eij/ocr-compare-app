@@ -1,7 +1,3 @@
-import os
-
-# Corrected version of upload.js for Next.js API route
-upload_js_content = """
 import formidable from 'formidable';
 import fs from 'fs';
 
@@ -55,11 +51,3 @@ export default async function handler(req, res) {
     }
   });
 }
-"""
-
-# Save the corrected upload.js file
-with open('upload.js', 'w') as f:
-    f.write(upload_js_content)
-
-print("Corrected upload.js file has been generated and saved.")
-
