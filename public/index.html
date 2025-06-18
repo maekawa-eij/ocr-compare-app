@@ -27,39 +27,59 @@
             height: 200px;
             margin-bottom: 20px;
         }
+        #startButton {
+            display: block;
+            margin: 20px auto;
+           -color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <h1>OCR Compare App</h1>
     <div id="pasteArea">ここに画像を貼り付けてください（Ctrl+V）</div>
+    <button id="startButton">読み取り開始</button>
     <textarea id="ocrText" placeholder="OCR結果がここに表示されます"></textarea>
 
     <script>
+        let lastPastedImageFile = null;
+
         document.getElementById('pasteArea').addEventListener('paste', function(event) {
             event.preventDefault();
             const items = event.clipboardData.items;
-            console.log('Pasted items:', items); // ログ追加
+            console.log('Pasted items:', items);
 
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') !== -1) {
                     const file = items[i].getAsFile();
+                    lastPastedImageFile = file;
                     const reader = new FileReader();
                     reader.onload = function(event) {
                         const img = new Image();
                         img.src = event.target.result;
                         document.getElementById('pasteArea').appendChild(img);
-                        console.log('Image pasted, calling uploadImage'); // ログ追加
-                        uploadImage(file);
+                        console.log('Image pasted');
                     };
                     reader.readAsDataURL(file);
                 }
             }
         });
 
+        document.getElementById('startButton').addEventListener('click', function() {
+            if (lastPastedImageFile) {
+                console.log('Start OCR process');
+                uploadImage(lastPastedImageFile);
+            } else {
+                alert('画像が貼り付けられていません');
+            }
+        });
+
         async function uploadImage(file) {
             const formData = new FormData();
             formData.append('image', file);
-            console.log('Sending image to /api/upload'); // ログ追加
+            console.log('Sending image to /api/upload');
 
             const res = await fetch('/api/upload', {
                 method: 'POST',
@@ -67,7 +87,7 @@
             });
 
             const data = await res.json();
-            console.log('OCR result:', data); // ログ追加
+            console.log('OCR result:', data);
             document.getElementById('ocrText').value = data.text;
         }
     </script>
