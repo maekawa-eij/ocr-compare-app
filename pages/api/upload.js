@@ -20,14 +20,18 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Form parsing error' });
     }
 
-    console.log('Uploaded files:', files); // ← ファイル構造の確認用ログ
-
+    console.log('--- ファイルアップロードログ開始 ---');
+    console.log('fields:', fields);
+    console.log('files keys:', Object.keys(files));
     const fileKey = Object.keys(files)[0];
     const uploadedFile = files[fileKey];
+    console.log('uploadedFile:', uploadedFile);
+    console.log('filepath:', uploadedFile?.filepath);
+    console.log('--- ファイルアップロードログ終了 ---');
 
-    if (!uploadedFile || !uploadedFile.filepath) {
-      console.error('ファイルが正しくアップロードされていません。files:', files);
-      return res.status(500).json({ error: 'アップロードされたファイルが無効です。' });
+    if (!uploadedFile || typeof uploadedFile.filepath !== 'string') {
+      console.error('filepath が無効です:', uploadedFile);
+      return res.status(500).json({ error: 'アップロードされたファイルに filepath がありません。' });
     }
 
     const apiKey = process.env.GOOGLE_API_KEY;
