@@ -1,16 +1,16 @@
 {
-  "name": "ocr-comparison-tool",
+  "name": "ocr-compare-app",
   "version": "1.0.0",
-  "description": "A tool for OCR and text comparison",
-  "main": "server.js",
+  "description": "OCR and comparison tool",
   "scripts": {
-    "start": "node server.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "formidable": "^1.2.2",
-    "tesseract.js": "^2.1.1"
-  },
-  "author": "",
-  "license": "ISC"
+    "next": "^13.4.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "formidable": "^1.2.2"
+  }
 }
