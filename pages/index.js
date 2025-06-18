@@ -77,7 +77,9 @@ export default function Home() {
           width: '300px',
           height: '300px',
           marginBottom: '20px'
-               ここに画像を貼り付けてください
+        }}
+      >
+        ここに画像を貼り付けてください
       </div>
       <button onClick={startOCR}>OCR開始</button>
       <textarea
