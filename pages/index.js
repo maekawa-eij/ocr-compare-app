@@ -1,5 +1,4 @@
 # Corrected version of index.js with proper JSX syntax
-
 index_js_content = """
 import { useState, useRef, useEffect } from 'react';
 
@@ -99,5 +98,5 @@ export default function Home() {
 with open('index.js', 'w') as f:
     f.write(index_js_content)
 
-print("Corrected index.js has been written successfully.")
+print("Corrected index.js file has been generated.")
 
