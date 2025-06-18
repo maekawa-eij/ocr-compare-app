@@ -19,7 +19,6 @@ export default function Home() {
         }
       }
     };
-
     const pasteArea = pasteAreaRef.current;
     pasteArea.addEventListener('paste', handlePaste);
     return () => pasteArea.removeEventListener('paste', handlePaste);
@@ -28,21 +27,16 @@ export default function Home() {
   const uploadImage = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-    console.log('Sending image to /api/upload');
-
     try {
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData
       });
-
       if (!res.ok) {
         const text = await res.text();
         throw new Error(`サーバーエラー: ${res.status} - ${text}`);
       }
-
       const data = await res.json();
-      console.log('OCR result:', data);
       setOcrText(data.text);
     } catch (error) {
       console.error('OCRエラー:', error);
@@ -72,7 +66,8 @@ export default function Home() {
     return new Blob([ab], { type: mimeString });
   };
 
- >
+  return (
+    <>
       <h1>OCR Comparison Tool</h1>
       <div
         ref={pasteAreaRef}
@@ -84,11 +79,13 @@ export default function Home() {
           marginBottom: '20px'
         }}
       >
-        ここに画像を貼り付けてください
-      </div>
+              </div>
       <button onClick={startOCR}>OCR開始</button>
       <textarea
         value={ocrText}
         placeholder="OCR結果がここに表示されます"
-        );
+        style={{ width: '100%', height: '100px' }}
+      />
+    </>
+  );
 }
