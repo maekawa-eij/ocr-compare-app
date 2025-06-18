@@ -1,3 +1,6 @@
+# Corrected version of index.js with proper JSX syntax
+
+index_js_content = """
 import { useState, useRef, useEffect } from 'react';
 
 export default function Home() {
@@ -79,7 +82,8 @@ export default function Home() {
           marginBottom: '20px'
         }}
       >
-              </div>
+        ここに画像を貼り付けてください
+      </div>
       <button onClick={startOCR}>OCR開始</button>
       <textarea
         value={ocrText}
@@ -89,3 +93,11 @@ export default function Home() {
     </>
   );
 }
+"""
+
+# Write the corrected content to index.js
+with open('index.js', 'w') as f:
+    f.write(index_js_content)
+
+print("Corrected index.js has been written successfully.")
+
