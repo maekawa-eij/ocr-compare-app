@@ -1,29 +1,29 @@
-import os
-
-# Create the necessary directory structure
-os.makedirs('pages/api', exist_ok=True)
-
-# Create the pages/index.js file with the required React component
-index_js_content = """
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export default function Home() {
   const [ocrText, setOcrText] = useState('');
+  const pasteAreaRef = useRef(null);
 
-  const handlePaste = (event) => {
-    const items = event.clipboardData.items;
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].type.indexOf('image') !== -1) {
-        const blob = items[i].getAsFile();
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(blob);
-        img.style.maxWidth = '100%';
-        document.getElementById('pasteArea').innerHTML = '';
-        document.getElementById('pasteArea').appendChild(img);
-        uploadImage(blob);
+  useEffect(() => {
+    const handlePaste = (event) => {
+      const items = event.clipboardData.items;
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const blob = items[i].getAsFile();
+          const img = document.createElement('img');
+          img.src = URL.createObjectURL(blob);
+          img.style.maxWidth = '100%';
+          pasteAreaRef.current.innerHTML = '';
+          pasteAreaRef.current.appendChild(img);
+          uploadImage(blob);
+        }
       }
-    }
-  };
+    };
+
+    const pasteArea = pasteAreaRef.current;
+    pasteArea.addEventListener('paste', handlePaste);
+    return () => pasteArea.removeEventListener('paste', handlePaste);
+  }, []);
 
   const uploadImage = async (file) => {
     const formData = new FormData();
@@ -51,8 +51,7 @@ export default function Home() {
   };
 
   const startOCR = () => {
-    const pasteArea = document.getElementById('pasteArea');
-    const img = pasteArea.querySelector('img');
+    const img = pasteAreaRef.current.querySelector('img');
     if (img) {
       const file = dataURLtoBlob(img.src);
       uploadImage(file);
@@ -73,12 +72,10 @@ export default function Home() {
     return new Blob([ab], { type: mimeString });
   };
 
-  return (
-    <div>
+ >
       <h1>OCR Comparison Tool</h1>
       <div
-        id="pasteArea"
-        onPaste={handlePaste}
+        ref={pasteAreaRef}
         style={{
           border: '2px dashed #ccc',
           padding: '20px',
@@ -91,20 +88,7 @@ export default function Home() {
       </div>
       <button onClick={startOCR}>OCR開始</button>
       <textarea
-        id="ocrText"
         value={ocrText}
         placeholder="OCR結果がここに表示されます"
-        readOnly
-        style={{ width: '100%', height: '100px' }}
-      />
-    </div>
-  );
+        );
 }
-"""
-
-# Write the content to pages/index.js
-with open('pages/index.js', 'w') as f:
-    f.write(index_js_content)
-
-print("The pages/index.js file has been created successfully.")
-
