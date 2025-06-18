@@ -1,18 +1,15 @@
 {
   "name": "ocr-compare-app",
   "version": "1.0.0",
-  "description": "OCR and comparison tool",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
-    "next": "^13.4.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "formidable": "^1.2.2",
-    "@swc/core": "^1.2.173",
-    "@swc/helpers": "^0.5.17"
+    "busboy": "^1.6.0",
+    "next": "13.4.19",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   }
 }
