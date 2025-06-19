@@ -1,3 +1,6 @@
+# Create the corrected index.js file with valid JSX syntax and Vercel compatibility
+
+index_js_content = """
 import { useState, useRef, useEffect } from 'react';
 
 export default function Home() {
@@ -73,9 +76,12 @@ export default function Home() {
       .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
       .toLowerCase();
 
+  const splitByPunctuation = (text) =>
+    text.split(/[、。.,]/).map((s) => normalizeText(s.trim())).filter(Boolean);
+
   const compareTexts = () => {
-    const ocrList = normalizeText(editableOcrText).split(/[\s\n]+/).filter(Boolean);
-    const userList = normalizeText(userText).split(/[\s\n]+/).filter(Boolean);
+    const ocrList = splitByPunctuation(editableOcrText);
+    const userList = splitByPunctuation(userText);
 
     const missingInOcr = userList.filter((item) => !ocrList.includes(item));
     const missingInUser = ocrList.filter((item) => !userList.includes(item));
@@ -96,7 +102,6 @@ export default function Home() {
       });
       result += `</ul>`;
     }
-
     if (missingInUser.length > 0) {
       result += `<p>① OCR側にあって、テキスト貼付側に無い原材料や成分:</p><ul>`;
       missingInUser.forEach((item) => {
@@ -104,7 +109,6 @@ export default function Home() {
       });
       result += `</ul>`;
     }
-
     if (orderDifferences.length > 0) {
       result += `<p>③ 原材料や成分の表記の順番が違うもの:</p><ul>`;
       orderDifferences.forEach((item) => {
@@ -112,7 +116,6 @@ export default function Home() {
       });
       result += `</ul>`;
     }
-
     setComparisonResult(result);
   };
 
@@ -137,7 +140,7 @@ export default function Home() {
   return (
     <>
       <h1>OCR Comparison Tool</h1>
-     
+      <div
         ref={pasteAreaRef}
         style={{
           border: '2px dashed #ccc',
@@ -174,3 +177,11 @@ export default function Home() {
     </>
   );
 }
+"""
+
+# Write the content to index.js file
+with open("index.js", "w") as file:
+    file.write(index_js_content)
+
+print("index.js file has been created successfully.")
+
