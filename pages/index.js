@@ -1,8 +1,10 @@
+# Correcting the syntax errors in the provided index.js file
+
 # Load the content of the file
 with open('index.js', 'r') as file:
     index_js_content = file.read()
 
-# Correcting the syntax errors in the provided index.js file
+# Corrected index.js content
 corrected_index_js_content = """
 import { useState, useRef, useEffect } from 'react';
 
@@ -186,5 +188,5 @@ export default function Home() {
 with open('index.js', 'w') as file:
     file.write(corrected_index_js_content)
 
-print("The index.js file has been corrected and updated.")
+print("The index.js file has been corrected and saved.")
 
