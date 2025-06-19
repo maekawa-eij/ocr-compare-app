@@ -1,3 +1,11 @@
+# Correcting the syntax errors in the provided index.js file
+
+# Load the content of the file
+with open('index.js', 'r') as file:
+    content = file.read()
+
+# Correct the syntax errors
+corrected_content = """
 import { useState, useRef, useEffect } from 'react';
 
 export default function Home() {
@@ -132,7 +140,9 @@ export default function Home() {
       alert('画像の形式が正しくありません。');
       return null;
     }
-   return (
+  };
+
+  return (
     <>
       <h1>OCR Comparison Tool</h1>
       <div
@@ -172,3 +182,11 @@ export default function Home() {
     </>
   );
 }
+"""
+
+# Save the corrected content back to the file
+with open('index.js', 'w') as file:
+    file.write(corrected_content)
+
+print("The syntax errors have been fixed and the corrected content has been saved to index.js.")
+
