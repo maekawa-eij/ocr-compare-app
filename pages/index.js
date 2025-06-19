@@ -130,7 +130,9 @@ export default function Home() {
     } catch (error) {
       console.error('dataURL変換エラー:', error);
       alert('画像の形式が正しくありません。');
- };
+      return null;
+    }
+  };
 
   return (
     <>
@@ -150,8 +152,8 @@ export default function Home() {
       <button onClick={startOCR}>OCR開始</button>
       <button onClick={clearAll} style={{ marginLeft: '10px' }}>クリア</button>
       <h3>OCR結果（編集可能）</h3>
-      <textarea
-       editableOcrText}
+     
+        value={editableOcrText}
         onChange={(e) => setEditableOcrText(e.target.value)}
         placeholder="OCR結果がここに表示されます"
         style={{ width: '100%', height: '100px', marginTop: '10px' }}
