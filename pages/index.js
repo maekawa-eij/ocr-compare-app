@@ -1,5 +1,14 @@
-# Create the corrected index.js file with valid JSX syntax and Vercel compatibility
+# Load the content of the files
+with open('upload.js', 'r') as file:
+    upload_js_content = file.read()
 
+with open('package.json', 'r') as file:
+    package_json_content = file.read()
+
+with open('next.config.js', 'r') as file:
+    next_config_js_content = file.read()
+
+# Create the corrected index.js file with valid JSX syntax and Vercel compatibility
 index_js_content = """
 import { useState, useRef, useEffect } from 'react';
 
@@ -179,9 +188,9 @@ export default function Home() {
 }
 """
 
-# Write the content to the index.js file
+# Save the corrected index.js file
 with open('index.js', 'w') as file:
     file.write(index_js_content)
 
-print("index.js file has been created successfully.")
+print("The corrected index.js file has been created successfully.")
 
