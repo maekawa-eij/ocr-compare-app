@@ -179,8 +179,8 @@ export default function Home() {
 }
 """
 
-# Write the content to index.js file
-with open("index.js", "w") as file:
+# Write the content to the index.js file
+with open('index.js', 'w') as file:
     file.write(index_js_content)
 
 print("index.js file has been created successfully.")
