@@ -73,7 +73,9 @@ export default function Home() {
 
   const normalizeIngredients = (text) => {
     return text
-      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
+      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0)) // 全角英数を半角に
+      .replace(/[（）]/g, '()') // 全角カッコを半角に統一
+      .replace(/[／]/g, '/')    // 全角スラッシュを半角に統一
       .replace(/[\s、。.,]/g, ',') // 句読点をカンマに
       .toLowerCase()
       .split(',')
