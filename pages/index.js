@@ -22,7 +22,6 @@ export default function Home() {
         }
       }
     };
-
     const pasteArea = pasteAreaRef.current;
     pasteArea.addEventListener('paste', handlePaste);
     return () => pasteArea.removeEventListener('paste', handlePaste);
@@ -31,20 +30,17 @@ export default function Home() {
   const uploadImage = async (file) => {
     const formData = new FormData();
     formData.append('image', file);
-
     try {
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
-
       if (!res.ok) {
         const text = await res.text();
         throw new Error(`サーバーエラー: ${res.status} - ${text}`);
       }
-
       const data = await res.json();
-      const flattenedText = data.text.replace(/[\r\n]+/g, ' '); // 改行をスペースに置換
+      const flattenedText = data.text.replace(/[\r\n\s]+/g, ''); // 改行と空白を削除
       setOcrText(flattenedText);
       setEditableOcrText(flattenedText);
     } catch (error) {
@@ -77,14 +73,17 @@ export default function Home() {
       .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
       .toLowerCase();
 
+  const splitByPunctuation = (text) =>
+    text.split(/[、。.,]/).map((s) => normalizeText(s.trim())).filter(Boolean);
+
   const compareTexts = () => {
-    const ocrList = normalizeText(editableOcrText).split(/[\s\n]+/).filter(Boolean);
-    const userList = normalizeText(userText).split(/[\s\n]+/).filter(Boolean);
+    const ocrList = splitByPunctuation(editableOcrText);
+    const userList = splitByPunctuation(userText);
 
     const missingInOcr = userList.filter((item) => !ocrList.includes(item));
     const missingInUser = ocrList.filter((item) => !userList.includes(item));
-
     const orderDifferences = [];
+
     const minLength = Math.min(ocrList.length, userList.length);
     for (let i = 0; i < minLength; i++) {
       if (ocrList[i] !== userList[i]) {
@@ -100,7 +99,6 @@ export default function Home() {
       });
       result += `</ul>`;
     }
-
     if (missingInUser.length > 0) {
       result += `<p>① OCR側にあって、テキスト貼付側に無い原材料や成分:</p><ul>`;
       missingInUser.forEach((item) => {
@@ -108,7 +106,6 @@ export default function Home() {
       });
       result += `</ul>`;
     }
-
     if (orderDifferences.length > 0) {
       result += `<p>③ 原材料や成分の表記の順番が違うもの:</p><ul>`;
       orderDifferences.forEach((item) => {
@@ -116,7 +113,6 @@ export default function Home() {
       });
       result += `</ul>`;
     }
-
     setComparisonResult(result);
   };
 
@@ -136,9 +132,7 @@ export default function Home() {
       alert('画像の形式が正しくありません。');
       return null;
     }
-  };
-
-  return (
+   return (
     <>
       <h1>OCR Comparison Tool</h1>
       <div
@@ -155,7 +149,6 @@ export default function Home() {
       </div>
       <button onClick={startOCR}>OCR開始</button>
       <button onClick={clearAll} style={{ marginLeft: '10px' }}>クリア</button>
-
       <h3>OCR結果（編集可能）</h3>
       <textarea
         value={editableOcrText}
@@ -163,7 +156,6 @@ export default function Home() {
         placeholder="OCR結果がここに表示されます"
         style={{ width: '100%', height: '100px', marginTop: '10px' }}
       />
-
       <h3>任意のテキスト貼り付け欄</h3>
       <textarea
         value={userText}
@@ -171,9 +163,7 @@ export default function Home() {
         placeholder="任意のテキストをここに貼り付けてください"
         style={{ width: '100%', height: '100px', marginTop: '10px' }}
       />
-
       <button onClick={compareTexts} style={{ marginTop: '10px' }}>比較開始</button>
-
       <h3>比較結果</h3>
       <div
         dangerouslySetInnerHTML={{ __html: comparisonResult }}
