@@ -1,3 +1,9 @@
+# Load the content of the file
+with open('index.js', 'r') as file:
+    index_js_content = file.read()
+
+# Correcting the syntax errors in the provided index.js file
+corrected_index_js_content = """
 import { useState, useRef, useEffect } from 'react';
 
 export default function Home() {
@@ -139,7 +145,8 @@ export default function Home() {
       <h1>OCR Comparison Tool</h1>
       <div
         ref={pasteAreaRef}
-                 border: '2px dashed #ccc',
+        style={{
+          border: '2px dashed #ccc',
           padding: '20px',
           width: '300px',
           height: '300px',
@@ -173,3 +180,11 @@ export default function Home() {
     </>
   );
 }
+"""
+
+# Save the corrected content back to the file
+with open('index.js', 'w') as file:
+    file.write(corrected_index_js_content)
+
+print("The index.js file has been corrected and updated.")
+
