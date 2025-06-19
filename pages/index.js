@@ -2,6 +2,9 @@ import { useState, useRef, useEffect } from 'react';
 
 export default function Home() {
   const [ocrText, setOcrText] = useState('');
+  const [editableOcrText, setEditableOcrText] = useState('');
+  const [userText, setUserText] = useState('');
+  const [comparisonResult, setComparisonResult] = useState('');
   const pasteAreaRef = useRef(null);
 
   useEffect(() => {
@@ -41,7 +44,9 @@ export default function Home() {
       }
 
       const data = await res.json();
-      setOcrText(data.text);
+      const flattenedText = data.text.replace(/[\r\n]+/g, ' '); // 改行をスペースに置換
+      setOcrText(flattenedText);
+      setEditableOcrText(flattenedText);
     } catch (error) {
       console.error('OCRエラー:', error);
       alert('OCR処理中にエラーが発生しました。コンソールを確認してください。');
@@ -56,6 +61,63 @@ export default function Home() {
     } else {
       alert('画像が貼り付けられていません。');
     }
+  };
+
+  const clearAll = () => {
+    pasteAreaRef.current.innerHTML = '';
+    setOcrText('');
+    setEditableOcrText('');
+    setUserText('');
+    setComparisonResult('');
+  };
+
+  const normalizeText = (text) =>
+    text
+      .replace(/[（）()、。.,]/g, '')
+      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0))
+      .toLowerCase();
+
+  const compareTexts = () => {
+    const ocrList = normalizeText(editableOcrText).split(/[\s\n]+/).filter(Boolean);
+    const userList = normalizeText(userText).split(/[\s\n]+/).filter(Boolean);
+
+    const missingInOcr = userList.filter((item) => !ocrList.includes(item));
+    const missingInUser = ocrList.filter((item) => !userList.includes(item));
+
+    const orderDifferences = [];
+    const minLength = Math.min(ocrList.length, userList.length);
+    for (let i = 0; i < minLength; i++) {
+      if (ocrList[i] !== userList[i]) {
+        orderDifferences.push(`${ocrList[i]} ↔ ${userList[i]}`);
+      }
+    }
+
+    let result = '';
+    if (missingInOcr.length > 0) {
+      result += `<p>② テキスト貼付側にあって、OCR側に無い原材料や成分:</p><ul>`;
+      missingInOcr.forEach((item) => {
+        result += `<li style="background-color: yellow;">${item}</li>`;
+      });
+      result += `</ul>`;
+    }
+
+    if (missingInUser.length > 0) {
+      result += `<p>① OCR側にあって、テキスト貼付側に無い原材料や成分:</p><ul>`;
+      missingInUser.forEach((item) => {
+        result += `<li style="background-color: yellow;">${item}</li>`;
+      });
+      result += `</ul>`;
+    }
+
+    if (orderDifferences.length > 0) {
+      result += `<p>③ 原材料や成分の表記の順番が違うもの:</p><ul>`;
+      orderDifferences.forEach((item) => {
+        result += `<li style="text-decoration: underline; text-decoration-color: red;">${item}</li>`;
+      });
+      result += `</ul>`;
+    }
+
+    setComparisonResult(result);
   };
 
   const dataURLtoBlob = (dataURL) => {
@@ -92,11 +154,30 @@ export default function Home() {
         ここに画像を貼り付けてください
       </div>
       <button onClick={startOCR}>OCR開始</button>
+      <button onClick={clearAll} style={{ marginLeft: '10px' }}>クリア</button>
+
+      <h3>OCR結果（編集可能）</h3>
       <textarea
-        value={ocrText}
+        value={editableOcrText}
+        onChange={(e) => setEditableOcrText(e.target.value)}
         placeholder="OCR結果がここに表示されます"
-        style={{ width: '100%', height: '100px' }}
-        readOnly
+        style={{ width: '100%', height: '100px', marginTop: '10px' }}
+      />
+
+      <h3>任意のテキスト貼り付け欄</h3>
+      <textarea
+        value={userText}
+        onChange={(e) => setUserText(e.target.value)}
+        placeholder="任意のテキストをここに貼り付けてください"
+        style={{ width: '100%', height: '100px', marginTop: '10px' }}
+      />
+
+      <button onClick={compareTexts} style={{ marginTop: '10px' }}>比較開始</button>
+
+      <h3>比較結果</h3>
+      <div
+        dangerouslySetInnerHTML={{ __html: comparisonResult }}
+        style={{ marginTop: '10px', border: '1px solid #ccc', padding: '10px' }}
       />
     </>
   );
