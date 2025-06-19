@@ -1,15 +1,3 @@
-# Load the content of the files
-with open('upload.js', 'r') as file:
-    upload_js_content = file.read()
-
-with open('package.json', 'r') as file:
-    package_json_content = file.read()
-
-with open('next.config.js', 'r') as file:
-    next_config_js_content = file.read()
-
-# Create the corrected index.js file with valid JSX syntax and Vercel compatibility
-index_js_content = """
 import { useState, useRef, useEffect } from 'react';
 
 export default function Home() {
@@ -52,7 +40,7 @@ export default function Home() {
         throw new Error(`サーバーエラー: ${res.status} - ${text}`);
       }
       const data = await res.json();
-      const flattenedText = data.text.replace(/[\r\n\s]+/g, ''); // 改行と空白を削除
+      const flattenedText = data.text.replace(/[\r\n\s]+/g, '');
       setOcrText(flattenedText);
       setEditableOcrText(flattenedText);
     } catch (error) {
@@ -142,9 +130,7 @@ export default function Home() {
     } catch (error) {
       console.error('dataURL変換エラー:', error);
       alert('画像の形式が正しくありません。');
-      return null;
-    }
-  };
+ };
 
   return (
     <>
@@ -165,7 +151,7 @@ export default function Home() {
       <button onClick={clearAll} style={{ marginLeft: '10px' }}>クリア</button>
       <h3>OCR結果（編集可能）</h3>
       <textarea
-        value={editableOcrText}
+       editableOcrText}
         onChange={(e) => setEditableOcrText(e.target.value)}
         placeholder="OCR結果がここに表示されます"
         style={{ width: '100%', height: '100px', marginTop: '10px' }}
@@ -186,11 +172,3 @@ export default function Home() {
     </>
   );
 }
-"""
-
-# Save the corrected index.js file
-with open('index.js', 'w') as file:
-    file.write(index_js_content)
-
-print("The corrected index.js file has been created successfully.")
-
