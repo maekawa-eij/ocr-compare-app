@@ -44,12 +44,12 @@ export default function Home() {
       }
 
       const data = await res.json();
-      const cleanedText = data.text.replace(/\s+/g, ''); // 全ての空白を削除
+      const cleanedText = data.text.replace(/\s+/g, '');
       setOcrText(cleanedText);
       setEditableOcrText(cleanedText);
     } catch (error) {
       console.error('OCRエラー:', error);
-      alert('OCR処理中にエラーが発生しました。コンソールを確認してください。');
+      alert('OCR処理中にエラーが発生しました。');
     }
   };
 
@@ -70,56 +70,78 @@ export default function Home() {
     setUserText('');
     setComparisonResult('');
   };
+  const normalizeText = (text) =>
+    text
+      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)) // 全角→半角
+      .replace(/[（]/g, '(').replace(/[）]/g, ')')
+      .replace(/[／]/g, '/').replace(/[％]/g, '%').replace(/[．]/g, '.')
+      .replace(/[\s\u3001\u3002]/g, '') // 空白・句読点削除
+      .toLowerCase();
 
-  const normalizeIngredients = (text) => {
-    return text
-      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0)) // 全角英数を半角に
-      .replace(/[（]/g, '(') // 全角 ( を半角に
-      .replace(/[）]/g, ')') // 全角 ) を半角に
-      .replace(/[／]/g, '/')  // 全角スラッシュを半角に
-      .replace(/[％]/g, '%')  // 全角パーセントを半角に
-      .replace(/\s+/g, '')   // 全ての空白削除
-      .replace(/[、。.,]/g, ',') // 句読点をカンマに
-      .toLowerCase()
-      .split(',')
-      .map((item) => item.trim())
+  const splitIngredients = (text) =>
+    normalizeText(text)
+      .split(/[,、。]/) // 読点・カンマで分割
+      .map((t) => t.trim())
       .filter(Boolean);
+
+  const highlightDifferences = (original, comparisonList, label) => {
+    const normalizedOriginal = normalizeText(original);
+    let result = '';
+    let current = '';
+    for (let i = 0; i < normalizedOriginal.length; i++) {
+      current += normalizedOriginal[i];
+      const match = comparisonList.find((word) => normalizedOriginal.includes(word));
+      if (match && current.includes(match)) {
+        result += match;
+        current = '';
+      } else if (i === normalizedOriginal.length - 1 || comparisonList.includes(current)) {
+        result += current;
+        current = '';
+      } else {
+        result += `<mark>${normalizedOriginal[i]}</mark>`;
+      }
+    }
+    return `<p>${label}</p><div style="border:1px solid #ccc;padding:8px;margin-bottom:10px;">${result}</div>`;
   };
 
   const compareTexts = () => {
-    const ocrList = normalizeIngredients(editableOcrText);
-    const userList = normalizeIngredients(userText);
+    const ocrList = splitIngredients(editableOcrText);
+    const userList = splitIngredients(userText);
 
     const missingInOcr = userList.filter((item) => !ocrList.includes(item));
     const missingInUser = ocrList.filter((item) => !userList.includes(item));
-
     const orderDifferences = [];
+
     const minLength = Math.min(ocrList.length, userList.length);
     for (let i = 0; i < minLength; i++) {
       if (ocrList[i] !== userList[i]) {
-        orderDifferences.push(`${ocrList[i]} ↔ ${userList[i]}`);
+        orderDifferences.push(ocrList[i]);
       }
     }
 
     let result = '';
-    if (missingInOcr.length > 0) {
-      result += `<p>② テキスト貼付側にあって、OCR側に無い原材料や成分:</p><ul>`;
-      missingInOcr.forEach((item) => {
-        result += `<li style="background-color: yellow;">${item}</li>`;
-      });
-      result += `</ul>`;
-    }
+
+    result += highlightDifferences(editableOcrText, userList, '① OCRから抽出されたテキスト');
+    result += highlightDifferences(userText, ocrList, '② テキスト貼り付け入力');
 
     if (missingInUser.length > 0) {
-      result += `<p>① OCR側にあって、テキスト貼付側に無い原材料や成分:</p><ul>`;
+      result += `<p>③ OCR側にあって、貼り付け側に無い成分:</p><ul>`;
       missingInUser.forEach((item) => {
         result += `<li style="background-color: yellow;">${item}</li>`;
       });
       result += `</ul>`;
     }
 
+    if (missingInOcr.length > 0) {
+      result += `<p>④ 貼り付け側にあって、OCR側に無い成分:</p><ul>`;
+      missingInOcr.forEach((item) => {
+        result += `<li style="background-color: yellow;">${item}</li>`;
+      });
+      result += `</ul>`;
+    }
+
     if (orderDifferences.length > 0) {
-      result += `<p>③ 原材料や成分の表記の順番が違うもの:</p><ul>`;
+      result += `<p>⑤ 順番が異なる成分:</p><ul>`;
       orderDifferences.forEach((item) => {
         result += `<li style="text-decoration: underline; text-decoration-color: red;">${item}</li>`;
       });
