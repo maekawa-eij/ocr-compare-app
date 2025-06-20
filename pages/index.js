@@ -73,12 +73,13 @@ export default function Home() {
 
   const normalizeIngredients = (text) => {
     return text
-      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0)) // 全角英数字→半角
-      .replace(/[（）]/g, (s) => (s === '（' || s === '(' ? '(' : ')')) // カッコ統一
-      .replace(/[／]/g, '/') // スラッシュ統一
-      .replace(/[％]/g, '%') // パーセント統一
-      .replace(/\s+/g, '') // 全ての空白削除（全角・半角問わず）
-      .replace(/[\u3001\u3002.,]/g, ',') // 句読点→カンマ
+      .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xfee0)) // 全角英数を半角に
+      .replace(/[（]/g, '(') // 全角 ( を半角に
+      .replace(/[）]/g, ')') // 全角 ) を半角に
+      .replace(/[／]/g, '/')  // 全角スラッシュを半角に
+      .replace(/[％]/g, '%')  // 全角パーセントを半角に
+      .replace(/\s+/g, '')   // 全ての空白削除
+      .replace(/[、。.,]/g, ',') // 句読点をカンマに
       .toLowerCase()
       .split(',')
       .map((item) => item.trim())
