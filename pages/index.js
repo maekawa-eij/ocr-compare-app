@@ -34,7 +34,7 @@ export default function Home() {
 
     try {
       const res = await fetch('/api/upload', {
-        method: 'POST',
+        method: 'POST,
         body: formData,
       });
 
@@ -79,6 +79,7 @@ export default function Home() {
       .replace(/[／]/g, '/')
       .replace(/[％]/g, '%')
       .replace(/[．]/g, '.')
+      .replace(/[ー]/g, '-')
       .replace(/[\s]/g, '')
       .toLowerCase();
 
@@ -145,7 +146,7 @@ export default function Home() {
           border: '2px dashed #ccc',
           padding: '20px',
           width: '300px',
-          height: '300px',
+          height: '225px', // 300px の 75% に調整
           marginBottom: '20px',
         }}
       >
