@@ -79,7 +79,7 @@ export default function Home() {
       .replace(/[／]/g, '/')
       .replace(/[％]/g, '%')
       .replace(/[．]/g, '.')
-      .replace(/[ー]/g, '-')
+      .replace(/[ー－]/g, '-')
       .replace(/[\s]/g, '')
       .toLowerCase();
 
