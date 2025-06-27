@@ -4,6 +4,7 @@ export default function Home() {
   const [ocrText, setOcrText] = useState('');
   const [editableOcrText, setEditableOcrText] = useState('');
   const [userText, setUserText] = useState('');
+  const [ignoredChars, setIgnoredChars] = useState('');
   const [comparisonResult, setComparisonResult] = useState('');
   const pasteAreaRef = useRef(null);
 
@@ -68,11 +69,12 @@ export default function Home() {
     setOcrText('');
     setEditableOcrText('');
     setUserText('');
+    setIgnoredChars('');
     setComparisonResult('');
   };
 
-  const normalize = (text) =>
-    text
+  const normalize = (text) => {
+    let result = text
       .replace(/[Ａ-Ｚａ-ｚ０-９]/g, (s) => String.fromCharCode(s.charCodeAt(0) - 0xFEE0))
       .replace(/[（]/g, '(')
       .replace(/[）]/g, ')')
@@ -82,6 +84,14 @@ export default function Home() {
       .replace(/[ー－]/g, '-')
       .replace(/[\s]/g, '')
       .toLowerCase();
+
+    if (ignoredChars) {
+      const regex = new RegExp(`[${ignoredChars}]`, 'g');
+      result = result.replace(regex, '');
+    }
+
+    return result;
+  };
 
   const diffHighlight = (source, target) => {
     let result = '';
@@ -169,6 +179,15 @@ export default function Home() {
         onChange={(e) => setUserText(e.target.value)}
         placeholder="任意のテキストをここに貼り付けてください"
         style={{ width: '100%', height: '100px', marginTop: '10px' }}
+      />
+
+      <h3>無視する文字（差分に含めない）</h3>
+      <input
+        type="text"
+        value={ignoredChars}
+        onChange={(e) => setIgnoredChars(e.target.value)}
+        placeholder="例: ●*など"
+        style={{ width: '100%', marginTop: '5px', marginBottom: '10px', padding: '5px' }}
       />
 
       <button onClick={compareTexts} style={{ marginTop: '10px' }}>比較開始</button>
